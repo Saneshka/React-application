@@ -11,9 +11,11 @@ function Products() {
   const [description, setDescription] = useState<string>("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
   function passProductId(id: any) {
     console.log("product id:" + id);
+    setIsUpdate(true);
     getProductById(id);
   }
   function handleProductId(event: any) {
@@ -43,6 +45,20 @@ function Products() {
       categoryId: categoryId,
     });
     getProducts();
+  }
+  async function handleUpdate() {
+    if (isUpdate) {
+      updateProduct();
+    } else {
+      saveProduct();
+    }
+  }
+  function buttonName() {
+    if (isUpdate) {
+      return "Update";
+    } else {
+      return "Save";
+    }
   }
   async function updateProduct() {
     console.log("update method");
@@ -176,22 +192,12 @@ function Products() {
             return <option value={category.id}>{category.name}</option>;
           })}
         </select>
-        {productId === 0 && (
-          <button
-            className="bg-slate-400 hover:bg-black text-white text-sm rounded-md py-2 px-4 mt-5"
-            onClick={saveProduct}
-          >
-            Save
-          </button>
-        )}
-        {productId > 0 && (
-          <button
-            className="bg-slate-400 hover:bg-black text-white text-sm rounded-md py-2 px-4 mt-5"
-            onClick={updateProduct}
-          >
-            Update
-          </button>
-        )}
+        <button
+          className="bg-slate-400 hover:bg-black text-white text-sm rounded-md py-2 px-4 mt-5"
+          onClick={handleUpdate}
+        >
+          {buttonName()}
+        </button>
       </div>
     </div>
   );
