@@ -8,6 +8,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Profile from "./pages/Profile";
 import Categories from "./pages/Categories";
 import Products from "./pages/Product";
+import Orders from "./pages/orders/Order";
+import CreateOrders from "./pages/orders/CreateOrders";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/create" element={<CreateOrders />} />
       </Routes>
     </BrowserRouter>
   );

@@ -7,16 +7,23 @@ function Products() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [productId, setProductId] = useState<number>(0);
   const [productName, setProductName] = useState<string>("");
-  const [productPrice, setProductPrice] = useState<string>("");
+  const [productPrice, setProductPrice] = useState<number>();
   const [description, setDescription] = useState<string>("");
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<number>();
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [editProduct, setProductEditing] = useState<ProductType | null>();
 
-  function passProductId(id: any) {
-    console.log("product id:" + id);
+  function passProductId(product: ProductType) {
+    // console.log("product id:" + id);
     setIsUpdate(true);
-    getProductById(id);
+    // getProductById(id);
+    setProductEditing(product);
+    setProductId(product.id);
+    setProductName(product.name);
+    setProductPrice(product.price);
+    setDescription(product.description);
+    setCategoryId(product.category.id);
   }
   function handleProductId(event: any) {
     setProductId(event.target.value);
@@ -32,6 +39,11 @@ function Products() {
   }
   function handleCategoryId(event: any) {
     setCategoryId(event.target.value);
+  }
+
+  async function deleteProduct(productID: number) {
+    await axios.delete("http://localhost:8081/products/" + productID);
+    getProducts();
   }
   async function loadCategories() {
     const response = await axios.get("http://localhost:8081/categories");
@@ -53,13 +65,7 @@ function Products() {
       saveProduct();
     }
   }
-  function buttonName() {
-    if (isUpdate) {
-      return "Update";
-    } else {
-      return "Save";
-    }
-  }
+
   async function updateProduct() {
     console.log("update method");
     await axios.put("http://localhost:8081/products/" + productId, {
@@ -69,19 +75,16 @@ function Products() {
       categoryId: categoryId,
     });
     getProducts();
+    setCategoryId(0);
+    setProductName("");
+    setProductPrice(0);
+    setDescription("");
+    setIsUpdate(false);
+    setProductEditing(null);
   }
   async function getProducts() {
     const response = await axios.get("http://localhost:8081/products");
     setProducts(response.data);
-  }
-  async function getProductById(id: number) {
-    const response = await axios.get("http://localhost:8081/products/" + id);
-    const productData = response.data;
-    setProductId(productData.id);
-    setProductName(productData.name);
-    setDescription(productData.description);
-    setProductPrice(productData.price);
-    setCategoryId(productData.category.id);
   }
   useEffect(function () {
     getProducts();
@@ -101,7 +104,9 @@ function Products() {
               <th className="p-2 w-[200px] text-left">Product Desciption</th>
               <th className="p-2 w-[200px] text-left">Category </th>
               <th className="p-2 w-[100px] text-left">Product Price</th>
-              <th className="p-2 w-[100px] text-left">Action</th>
+              <th className="p-2 w-[50px] text-center " colSpan={2}>
+                Action
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -126,9 +131,17 @@ function Products() {
                   <td className="p-2 text-center border-b border-slate-300">
                     <button
                       className="bg-slate-400 hover:bg-black text-white text-sm rounded-md py-2 px-4"
-                      onClick={() => passProductId(product.id)}
+                      onClick={() => passProductId(product)}
                     >
                       Edit
+                    </button>
+                  </td>
+                  <td className="p-2 text-center border-b border-slate-300">
+                    <button
+                      className="bg-slate-400 hover:bg-black text-white text-sm rounded-md py-2 px-4"
+                      onClick={() => deleteProduct(product.id)}
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -139,7 +152,7 @@ function Products() {
       </div>
       <div className="mt-10 border border-slate-300 px-4 py-3 rounded-md mx-5">
         <h2 className="text-slate-950 font-bold pb-5">Product Form</h2>
-        {productId > 0 && (
+        {editProduct ? (
           <div className="mb-5">
             <label className="text-sm text-slate-800 block pb-2">
               Product ID
@@ -152,6 +165,8 @@ function Products() {
               disabled={true}
             />
           </div>
+        ) : (
+          ""
         )}
         <label className="text-sm text-slate-800 block pb-2">
           Product Name
@@ -196,7 +211,7 @@ function Products() {
           className="bg-slate-400 hover:bg-black text-white text-sm rounded-md py-2 px-4 mt-5"
           onClick={handleUpdate}
         >
-          {buttonName()}
+          {isUpdate ? "Update Product" : "Add Product"}
         </button>
       </div>
     </div>
